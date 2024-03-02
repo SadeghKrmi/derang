@@ -48,6 +48,8 @@ PUNCTUATIONS = frozenset({".", "،", ":", "؛", "-", "؟", "!", "(", ")", "[", "
 
 DIACRITIC_CHARS = {diac for diac in PersianDiacritics.chars()}
 
+# Order is critical
+SENTENCE_BOUNDRY_PUNCS = [".", "؟", "!", "،", "؛"]
 
 
 PERSIAN_CHARS = {HARF_SEPARATOR, WORD_SEPARATOR, *PERSIAN_LETTERS, *PUNCTUATIONS, *DIACRITIC_CHARS}
