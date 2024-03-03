@@ -1,5 +1,6 @@
 import json
-from logger import _LOGGER
+from derang.logger import _LOGGER
+from derang.text_encoder import TextEncoder
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +14,9 @@ class Config:
         self.session_name = self.config["session_name"]
         self.data_dir = self.config["data_directory"]
         
+        self.text_encoder = TextEncoder()
+        self.len_input_symbols = len(self.text_encoder.input_symbols)
+        self.len_target_symbols = len(self.text_encoder.target_symbols)
         
     def _load_config(self):
         with open(self.config_path, "rb") as jconfig:
@@ -27,4 +31,9 @@ class Config:
     def get(self, key, default=None):
         return self.config.get(key, default)
     
-    
+    def get_inference_config(self):
+        tocken_confing = self.text_encoder.dump_tokens()
+        return {
+            "train_max_length": self["max_len"] -2,
+            **token_config
+        }

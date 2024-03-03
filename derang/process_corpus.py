@@ -1,17 +1,19 @@
 import argparse
 from os import cpu_count, fspath
-from logger import _LOGGER
-from config import Config
+from derang.logger import _LOGGER
+from derang.config import Config
+import derang.utils as utils
 from pathlib import Path
 from functools import reduce, partial
 from concurrent.futures import ProcessPoolExecutor
-from constants import SENTENCE_BOUNDRY_PUNCS
+from tqdm import tqdm
+import random
 
 def process_corpus_arg_parser():
     _LOGGER.info("Running the argument parser in corpus prcessor...")
     
     parser = argparse.ArgumentParser(
-        description = "argument parser for derang, training, valiation and test sets."
+        description = "argument parser for derang, preprocessing and generating the training, valiation and test sets."
     )
     
     parser.add_argument(
@@ -23,7 +25,7 @@ def process_corpus_arg_parser():
     )
     
     parser.add_argument(
-        "--config", type=str, required=True, help="Model config"
+        "--config", type=str, required=True, help="Model configiguration path"
     )
     
     parser.add_argument(
@@ -36,6 +38,18 @@ def process_corpus_arg_parser():
     
     parser.add_argument(
         "--chunk_size", type=int, default=0, help="the size of batches sent to each process"
+    )
+    
+    parser.add_argument(
+        "--validate", action="store_true", help="validate sentences to make sure includes valid diactritics."
+    )
+    
+    parser.add_argument(
+        "--n_val", type=int, default=0, help="number of sentences in validation set, for example 50."
+    )
+    
+    parser.add_argument(
+        "--n_test", type=int, default=0, help="number of sentences in test set, for example 100."
     )
 
     return parser
@@ -57,18 +71,44 @@ def process_corpus_data(args):
     valid_lines = set(l for l in lines if len(l) <= max_chars)
     invalid_lines = set(lines).difference(valid_lines)
 
-    _LOGGER.info(f"lines with length > {max_chars} are ignored. lines being ignored: \n" + "\n".join(ln for ln in invalid_lines))
+    if invalid_lines:
+        _LOGGER.info(f"lines with length > {max_chars} are ignored. lines being ignored: \n" + "\n".join(ln for ln in invalid_lines))
+    else:
+        _LOGGER.info(f"no lines being ignored due to lenght more than {max_chars}")
+    lines = valid_lines
     
-    
-  
+    if args.validate:
+        total_lines = len(lines)
+        _LOGGER.info("Ignoring the sentences without valid diacritics or no diacritic ... ")
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            iterator = executor.map(utils.has_diacritics_chars, lines, chunksize=chunksize)
+            processed_lines = [ln for ln in tqdm(iterator, total=total_lines)]            
+        lines = list(filter(None, processed_lines))
+        _LOGGER.info(f"number of lines without diacritics is {total_lines - len(lines)} ")
+    _LOGGER.info(f"number of lines after preprocess is {len(lines)} ")
 
+    _LOGGER.info(f"generating the training, validation and test set.")
+    random.shuffle(list(lines))
+    n_lines = len(lines)
+    
+    n_val = args.n_val or round(n_lines * 0.01)
+    lines, val_lines = utils.take_out_samples(lines, n_val)
+
+    n_test = args.n_test or round(n_lines * 0.02)
+    lines, test_lines = utils.take_out_samples(lines, n_test)
+    
+    utils.save_lines(output_dir.joinpath("training-set.txt"), lines)
+    utils.save_lines(output_dir.joinpath("validation-set.txt"), val_lines)
+    utils.save_lines(output_dir.joinpath("test-set.txt"), test_lines)
+    return
+    
 def main():
-    arguments = process_corpus_arg_parser().parse_args()
-    config = Config(arguments.config)
+    args = process_corpus_arg_parser().parse_args()
+    config = Config(args.config)
     
     # reserve 2 empty poses for the SOS and EOS tokens
-    arguments.max_chars = config.config["max_len"] - 2
-    process_corpus_data(arguments)
+    args.max_chars = config.config["max_len"] - 2
+    process_corpus_data(args)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
-import enum
+from enum import Enum
 
-class PersianDiacritics():
+class PersianDiacritics(Enum):
     """define all existing diacritics in Persian language that an alphabet can take."""
     
     
@@ -27,10 +27,29 @@ class PersianDiacritics():
             cls.PISH,
             cls.HAMZEH,
             cls.TANWEEN_ZEBAR,
+        }
+        
+    @classmethod
+    def valid(cls):
+        return {
+            cls.NO_DIACRITICS,
+            cls.SOKOON,
+            cls.TASHDID,
+            cls.ZIR,
+            cls.ZEBAR,
+            cls.PISH,
+            cls.HAMZEH,
+            cls.TANWEEN_ZEBAR,
             cls.TASHDID_PLUS_ZIR,
             cls.TASHDID_PLUS_ZEBAR,
             cls.TASHDID_PLUS_PISH
         }
+        
+
+    @classmethod
+    def diacritic_to_label(cls):
+        return {member.value: name for (name, member) in cls.__members__.items()}
+
 
 HARF_SEPARATOR = chr(0x200C)
 WORD_SEPARATOR = chr(0x20)
@@ -46,7 +65,9 @@ PERSIAN_LETTERS = frozenset(
 PERSIAN_NUMBERS = frozenset(chr(x) for x in (list(range(0x06F0, 0x6FA))))
 PUNCTUATIONS = frozenset({".", "،", ":", "؛", "-", "؟", "!", "(", ")", "[", "]", '"', "«", "»",})
 
-DIACRITIC_CHARS = {diac for diac in PersianDiacritics.chars()}
+DIACRITIC_CHARS = {diac.value for diac in PersianDiacritics.chars()}
+DIACRITIC_LABELS = PersianDiacritics.diacritic_to_label()
+ALL_VALID_DIACRITIC_CHARS = {diac.value for diac in PersianDiacritics.valid()}
 
 # Order is critical
 SENTENCE_BOUNDRY_PUNCS = [".", "؟", "!", "،", "؛"]
