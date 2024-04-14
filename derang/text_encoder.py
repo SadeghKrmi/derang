@@ -90,7 +90,8 @@ class TextEncoder:
         return [self.target_id_to_symbol[sid] for sid in sequence if (sid not in self.meta_target_token_ids)]
     
     def clean(self, text):
-        return persian_cleaner(text)
+        clean_text = persian_cleaner(text)
+        return clean_text
     
     def combine_text_and_diacritics(self, input_ids: list[int], output_ids: list[int]):
         """

@@ -25,7 +25,7 @@ class Diacritizer:
         
     def diacritize_text(self, sentences: list[str], batch_size=_missing):
         if batch_size is _missing:
-            batch_size = self.config["batch_size"]
+            batch_size = self.config.config["batch_size"]
         elif not batch_size:
             batch_size = len(sentences)
             

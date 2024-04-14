@@ -36,11 +36,8 @@ class DiacritizationDataset(Dataset):
             targets = torch.Tensor(self.text_encoder.target_to_sequence(data[2].split(self.config["diacritics_separator"])))
             return inputs, targets, data[0]
         
-        
         data = self.data[id]
-        print(f"---------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>{data}")
         data = self.text_encoder.clean(data)
-        print(f"---------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>{data}")
         
         text, inputs, diacritics = extract_haraqat(data)
         inputs = torch.Tensor(self.text_encoder.input_to_sequence("".join(inputs)))

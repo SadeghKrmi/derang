@@ -68,6 +68,8 @@ PUNCTUATIONS = frozenset({".", "،", ":", "؛", "-", "؟", "!", "(", ")", "[", "
 DIACRITIC_CHARS = {diac.value for diac in PersianDiacritics.chars()}
 DIACRITIC_LABELS = PersianDiacritics.diacritic_to_label()
 ALL_VALID_DIACRITIC_CHARS = {diac.value for diac in PersianDiacritics.valid()}
+print('***************************************************************')
+print(ALL_VALID_DIACRITIC_CHARS)
 
 # Order is critical
 SENTENCE_BOUNDRY_PUNCS = [".", "؟", "!", "،", "؛"]

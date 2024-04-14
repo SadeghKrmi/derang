@@ -12,13 +12,14 @@ from lightning.pytorch import LightningModule
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from tqdm import tqdm
 from more_itertools import take
+from x_transformers.x_transformers import Encoder
 
 class HiGRU(nn.Module):
     def __init__(self, *args, pad_idx, sum_bidirection=False, **kwargs):
         super().__init__()
         self.gru = nn.GRU(*args, **kwargs)
         self.batch_first = self.gru.batch_first
-        self.hiiden_size = self.gru.hidden_size
+        self.hidden_size = self.gru.hidden_size
         self.bidirectional = self.gru.bidirectional
         self.pad_idx = pad_idx
         self.sum_bidirectionnal = sum_bidirection
@@ -28,7 +29,7 @@ class HiGRU(nn.Module):
         output, hx = self.gru(packed_input, hx)
         output, _lengths = pad_packed_sequence(output, batch_first=self.batch_first, padding_value=self.pad_idx)
         if self.bidirectional and self.sum_bidirectionnal:
-            output = output[:,:,:self.hidden_size] + output[:,:,self.hiiden_size:]
+            output = output[:,:,:self.hidden_size] + output[:,:,self.hidden_size:]
         return output.tanh()
     
     
@@ -65,13 +66,25 @@ class AlefModel(LightningModule):
     def _build_layers(self, d_model, inp_vocab_size, targ_vocab_size, input_pad_idx, target_pad_idx):
         self.emb = nn.Embedding(inp_vocab_size, d_model, padding_idx = input_pad_idx)
         nn.init.normal_(self.emb.weight, -1, 1)
-        self.gru = HiGRU(d_model, d_model, num_layers=6, batch_first=True, bidirectional=True, dropout=0.1, pad_idx=input_pad_idx, sum_bidirection=True)
-        self.gru_dropout=0.2
-        ff_dropout=0.2
-        ff_relu_squared=True
-        rel_pos_bias=True
-        onnxable=True
-        
+        self.gru = HiGRU(d_model, d_model,
+                         num_layers=6, 
+                         batch_first=True, 
+                         bidirectional=True,
+                         dropout=0.1, 
+                         pad_idx=input_pad_idx, 
+                         sum_bidirection=True
+        )
+        self.gru_dropout=nn.Dropout(0.2)
+        self.attn_layers = Encoder(
+            dim=d_model,
+            depth=6,
+            heads=8,
+            layer_dropout=0.2,
+            ff_dropout=0.2,
+            ff_relu_squared=True,
+            rel_pos_bias=True,
+            onnxable=True
+        )
         
         self.res_layernorm = nn.LayerNorm(d_model)
         self.fc_out = nn.Linear(d_model, targ_vocab_size)
@@ -157,7 +170,7 @@ class AlefModel(LightningModule):
             error_rates = self.evaluate_with_error_rates(
                 diacritizer,
                 data_loader=data_loader,
-                num_batches=self.config["error_rates_n_batches"],
+                num_batches=self.config.config["error_rates_n_batches"],
                 predictions_dir=Path(self.trainer.log_dir).joinpath("predictions"),
             )
             self.log_dict({

@@ -13,8 +13,10 @@ def basic_cleaner(text):
     return text.strip()
 
 
-def persian_cleaner(text):
-    text = filter(lambda characters: characters in PERSIAN_CHARS, text)
+def persian_cleaner(text):  
+    clean_text = filter(lambda characters: characters in PERSIAN_CHARS, text)
+    clean_text = collapse_whitespaces("".join(list(clean_text)))
+    return clean_text
     
     
 def diacritics_cleaner(text):

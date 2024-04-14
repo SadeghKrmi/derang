@@ -87,8 +87,6 @@ def extract_haraqat(text: str, correct_reversed: bool = True):
     text_list: ['ا', 'ی', ' ', 'ه', 'م', ' ', 'و', ' ', 'غ', 'م', ' ', 'م', 'ن']
     haraqat_list: ['', '', '', '', 'ُّ', '', '', '', 'َ', '', '', '', '']
     """
-    print('-----------------------------------------------------------------------')
-    print(text)
     if len(text.strip()) == 0:
         return text, [" "] * len(text), [""] * len(text)
     
@@ -107,6 +105,10 @@ def extract_haraqat(text: str, correct_reversed: bool = True):
     if len(haraqat_list) > 0:
         del haraqat_list[0]
     haraqat_list.append(extract_stack(stack))
+    print('-----------------------------------------------------------------------')
+    
+    print(text)
+    print(haraqat_list)
 
     return text, txt_list, haraqat_list
 
@@ -320,9 +322,9 @@ def calculate_wer(
     # If the whole word is a diacritic, then skip it since it my cause error in the WER caclulation
     #by shifting all remaining words.
     prediction = [
-        word for word in prediction if word not in ALL_VALID_DIACRITIC_CHARS.keys()
+        word for word in prediction if word not in ALL_VALID_DIACRITIC_CHARS
     ]
-    original = [word for word in original if word not in ALL_VALID_DIACRITIC_CHARS.keys()]
+    original = [word for word in original if word not in ALL_VALID_DIACRITIC_CHARS]
 
     assert len(prediction) == len(original)
 
