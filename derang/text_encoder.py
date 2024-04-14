@@ -47,6 +47,7 @@ class TockenConfig:
 class TextEncoder:
     """Clean text, preprocess input, convert and generate output."""
     def __init__(self, config: TockenConfig = None):
+        print('******************** TEXT ENCODER **********************************')
         self.config = TockenConfig.default() if config is None else config
         self.input_symbols: list[str] = self.config.input_tokens
         self.target_symbols: list[str] = self.config.target_tokens

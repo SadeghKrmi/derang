@@ -23,4 +23,5 @@ python -m derang.text_encoder
 ### training
 ```bash
 python -m derang.alef.train --config config/alef/alef.json
+python -m derang.alef.train --config config/alef/alef.json --accelerator cpu
 ```

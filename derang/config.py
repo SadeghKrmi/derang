@@ -32,8 +32,8 @@ class Config:
         return self.config.get(key, default)
     
     def get_inference_config(self):
-        tocken_confing = self.text_encoder.dump_tokens()
+        token_config = self.text_encoder.dump_tokens()
         return {
-            "train_max_length": self["max_len"] -2,
+            "train_max_length": self.config["max_len"] -2,
             **token_config
         }

@@ -97,9 +97,9 @@ def process_corpus_data(args):
     n_test = args.n_test or round(n_lines * 0.02)
     lines, test_lines = utils.take_out_samples(lines, n_test)
     
-    utils.save_lines(output_dir.joinpath("training-set.txt"), lines)
-    utils.save_lines(output_dir.joinpath("validation-set.txt"), val_lines)
-    utils.save_lines(output_dir.joinpath("test-set.txt"), test_lines)
+    utils.save_lines(output_dir.joinpath("train.txt"), lines)
+    utils.save_lines(output_dir.joinpath("val.txt"), val_lines)
+    utils.save_lines(output_dir.joinpath("test.txt"), test_lines)
     return
     
 def main():

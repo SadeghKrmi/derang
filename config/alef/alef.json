@@ -1,7 +1,7 @@
 {
   "session_name": "alef",
   "logs_root_directory": "./logs/alef",
-  "data_directory": "data/pertts",
+  "data_directory": "datasets/processed-data",
   "is_data_preprocessed": false,
   "data_separator": "|",
   "diacritics_separator": "*",
