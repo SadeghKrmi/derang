@@ -1,2 +1,5 @@
-# derang
-Persian discretization of e Kasreh using AI model (دِرَنگ‌نما)
+
+
+### ORDERS
+1. preprocessor
+2. 
